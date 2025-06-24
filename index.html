@@ -110,7 +110,8 @@
                 <div>
                     <h3 class="font-semibold mb-3 text-lg text-center">Price range (per night)</h3>
                     <div class="flex flex-wrap justify-center gap-2" data-filter-group="price">
-                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="low">$200 - $490</button>
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">Any Price</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="low">$200 - $490</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="mid">$490 - $580</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="high">$580+</button>
                     </div>
@@ -312,7 +313,7 @@
                 country: "Bahamas",
                 monthlyPrices: {
                     January: 468, February: 480, March: 470, April: 450, May: 430, June: 440,
-                    July: 450, August: 445, September: 410, October: 420, November: 450, December: 460
+                    	July: 450, August: 445, September: 410, October: 420, November: 450, December: 460
                 },
                 vibe: "Party",
                 casino: "Nearby",
@@ -341,6 +342,7 @@
         let vibeChartInstance = null; // Store vibe chart instance
 
         const priceBrackets = {
+            all: { min: 0, max: Infinity }, // Added "all" bracket
             low: { min: 200, max: 490 },
             mid: { min: 490, max: 580 },
             high: { min: 580, max: Infinity }
@@ -349,7 +351,7 @@
         let currentFilters = {
             vibe: 'all',
             casino: 'all',
-            price: 'all',
+            price: 'all', // Default to 'all' for price
             country: 'all',
             month: 'January' // Default to January for initial display
         };
