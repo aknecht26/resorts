@@ -85,7 +85,7 @@
         <!-- Filters Section -->
         <section id="filters" class="mb-12 p-6 bg-white rounded-2xl shadow-lg">
             <h2 class="text-2xl font-bold mb-6 text-center text-[#0056B3]">Filter Your Choices</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Vibe Filter -->
                 <div>
                     <h3 class="font-semibold mb-3 text-lg text-center">What's your group's vibe?</h3>
@@ -112,6 +112,17 @@
                         <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="low">$200 - $490</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="mid">$490 - $580</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="high">$580+</button>
+                    </div>
+                </div>
+                <!-- Country Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Filter by Country?</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="country">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Countries</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Mexico">Mexico</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="DR">Dominican Republic</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Jamaica">Jamaica</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Bahamas">Bahamas</button>
                     </div>
                 </div>
             </div>
@@ -170,6 +181,7 @@
                 id: 1,
                 name: "Excellence Playa Mujeres",
                 location: "Cancun, Mexico",
+                country: "Mexico",
                 price: 623,
                 vibe: "Luxury",
                 casino: "Nearby",
@@ -184,6 +196,7 @@
                 id: 2,
                 name: "Breathless Punta Cana Resort & Spa",
                 location: "Punta Cana, DR",
+                country: "DR",
                 price: 389,
                 vibe: "Party",
                 casino: "On-site",
@@ -198,6 +211,7 @@
                 id: 3,
                 name: "Hotel Riu Palace Jamaica",
                 location: "Montego Bay, Jamaica",
+                country: "Jamaica",
                 price: 550,
                 vibe: "Party",
                 casino: "On-site",
@@ -212,6 +226,7 @@
                 id: 4,
                 name: "Live Aqua Beach Resort Cancun",
                 location: "Cancun, Mexico",
+                country: "Mexico",
                 price: 484,
                 vibe: "Balanced",
                 casino: "Nearby",
@@ -226,6 +241,7 @@
                 id: 5,
                 name: "Hyatt Zilara Cap Cana",
                 location: "Cap Cana, DR",
+                country: "DR",
                 price: 468,
                 vibe: "Balanced",
                 casino: "Nearby",
@@ -240,6 +256,7 @@
                 id: 6,
                 name: "Hotel Riu Palace Paradise Island",
                 location: "Paradise Island, Bahamas",
+                country: "Bahamas",
                 price: 276,
                 vibe: "Balanced",
                 casino: "Nearby",
@@ -254,6 +271,7 @@
                 id: 7,
                 name: "Breezes Resort & Spa Bahamas",
                 location: "Nassau, Bahamas",
+                country: "Bahamas",
                 price: 468,
                 vibe: "Party",
                 casino: "Nearby",
@@ -290,7 +308,8 @@
         let currentFilters = {
             vibe: 'all',
             casino: 'all',
-            price: 'all'
+            price: 'all',
+            country: 'all' // Added new country filter
         };
 
         const wrapLabel = (label) => {
@@ -365,6 +384,9 @@
             if (currentFilters.price !== 'all') {
                 const bracket = priceBrackets[currentFilters.price];
                 filtered = filtered.filter(r => r.price >= bracket.min && r.price < bracket.max);
+            }
+            if (currentFilters.country !== 'all') { // Apply country filter
+                filtered = filtered.filter(r => r.country === currentFilters.country);
             }
             
             renderResorts(filtered);
