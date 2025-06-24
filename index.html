@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Boolin - Resort Finder</title>
+    <!-- Chosen Palette: Brilliant Blues (Primary Blue: #007BFF, Secondary Blue: #0056B3, Accent Teal: #20C997, Light Background: #EBF2FA, Darker Background: #D8E2F2) -->
+    <!-- Application Structure Plan: An interactive dashboard design. Users start with top-level filters (Vibe, Casino, Price) to narrow down options. Results are displayed in a dynamic grid of summary cards. Users can then dive deeper by clicking a card to open a detailed modal view or by comparing all resorts on key metrics using interactive charts (Price Bar Chart). This non-linear, filter-driven approach empowers users to explore based on their priorities, making the decision process more efficient and personalized than reading a static report. -->
+    <!-- Visualization & Content Choices:
+    - Report Info: Resort data (price, vibe, casino, activities). Goal: Compare & Decide. Viz/Presentation: Interactive filters (HTML buttons), dynamic resort cards (HTML grid), and detailed modals. Interaction: Click filters to update the view, click cards for details. Justification: Directly supports the user's decision-making task.
+    - Report Info: Avg. Nightly Price. Goal: Compare cost. Viz/Presentation: Horizontal Bar Chart (Chart.js). Interaction: Hover for tooltips. Justification: Clear, instant visual comparison of a key quantitative factor.
+    - Report Info: Planning tips. Goal: Inform. Viz/Presentation: Accordion list (HTML/JS). Interaction: Click to expand. Justification: Keeps supplementary info organized and compact.
+    - Library/Method: Tailwind CSS, Vanilla JS, Chart.js. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EBF2FA; /* Light background from Brilliant Blues palette */
+        }
+        .filter-btn.active {
+            background-color: #007BFF; /* Primary Blue accent */
+            color: white;
+            border-color: #007BFF;
+        }
+        .filter-btn {
+            transition: all 0.2s ease-in-out;
+            border-color: #C2D4E8; /* Lighter blue for inactive borders */
+            color: #333333; /* Dark gray for text */
+            background-color: white;
+        }
+        .resort-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: white;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Subtle shadow */
+        }
+        .resort-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* More pronounced shadow on hover */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        #modal {
+            transition: opacity 0.3s ease;
+        }
+        #modal-content {
+            background-color: white;
+            border-radius: 1.5rem; /* More rounded corners */
+        }
+        .modal-close-btn {
+            font-size: 2.5rem;
+            line-height: 1;
+            color: #94A3B8; /* Muted blue-gray */
+        }
+        .modal-close-btn:hover {
+            color: #EF4444; /* Red for close hover */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Main Container -->
+    <div class="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#007BFF] mb-2">Big Boolin</h1>
+        </header>
+
+        <!-- Filters Section -->
+        <section id="filters" class="mb-12 p-6 bg-white rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 text-center text-[#0056B3]">Filter Your Choices</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Vibe Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">What's your group's vibe?</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="vibe">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Vibes</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Luxury">Luxury & Gourmet</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Party">High-Energy & Party</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Balanced">Balanced Fun</button>
+                    </div>
+                </div>
+                <!-- Casino Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Casino access?</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="casino">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">Any</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="On-site">On-site</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Nearby">Nearby</button>
+                    </div>
+                </div>
+                <!-- Price Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Price range (per night)?</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="price">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="low">$200 - $490</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="mid">$490 - $580</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="high">$580+</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content: Charts & Resorts -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Charts Column -->
+            <div class="flex flex-col gap-12">
+                <div class="p-6 bg-white rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-[#0056B3]">Price Comparison</h2>
+                    <p class="text-center text-sm text-gray-500 mb-4">Average nightly cost for a weeknight in Jan/Feb.</p>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+                <div class="p-6 bg-white rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-[#0056B3]">Resort Vibe At-a-Glance</h2>
+                    <p class="text-center text-sm text-gray-500 mb-4">Comparing resorts on key characteristics for a friends trip.</p>
+                    <div class="chart-container">
+                        <canvas id="vibeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resorts Column -->
+            <div>
+                 <h2 id="results-heading" class="text-2xl font-bold mb-6 text-[#0056B3]">Showing Resorts</h2>
+                <div id="resorts-grid" class="grid grid-cols-1 gap-6">
+                    <!-- Resort cards will be injected here -->
+                </div>
+            </div>
+        </main>
+        
+        <!-- Planning Tips Section -->
+        <section class="mt-16 p-8 bg-white rounded-2xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-6 text-[#007BFF]">Things to Consider</h2>
+            <div id="tips-accordion" class="space-y-4 max-w-4xl mx-auto">
+                <!-- Tips will be injected here -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <!-- Modal content will be injected here -->
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const resorts = [
+            {
+                id: 1,
+                name: "Excellence Playa Mujeres",
+                location: "Cancun, Mexico",
+                price: 623,
+                vibe: "Luxury",
+                casino: "Nearby",
+                casinoDetails: "While there's no on-site casino, several are nearby, including Royal Yak Casino and Sports Book, Dubai Palace Casino, and PlayCity Casino.",
+                description: "This upscale, sophisticated adults-only retreat is rich with activities and gourmet dining, perfect for friends who appreciate refined luxury. It boasts a stunning beachfront, winding pools, and spacious suites.",
+                uniquePoint: "Gourmet dining variety & extensive activities for a luxurious, active trip.",
+                activities: ["12 international restaurants", "11 bars/lounges", "7 swimming pools", "Miilé Spa", "Kayaking, sailing, snorkeling", "Tennis, pickleball, archery", "Cooking & dance classes", "Nightly live shows & nightclub"],
+                vibeScores: { luxury: 5, party: 3, dining: 5, activities: 5, relaxation: 4 },
+                websiteUrl: "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/"
+            },
+            {
+                id: 2,
+                name: "Breathless Punta Cana Resort & Spa",
+                location: "Punta Cana, DR",
+                price: 389,
+                vibe: "Party",
+                casino: "On-site",
+                casinoDetails: "Features a lively on-site casino, integrating gaming seamlessly into the resort's high-energy entertainment.",
+                description: "Ideal for groups that thrive on high-energy, vibrant atmospheres. It’s designed for social interaction with non-stop parties, themed events, and a dynamic nightlife.",
+                uniquePoint: "Non-stop themed parties & on-site casino for a high-energy, integrated experience.",
+                activities: ["On-site casino", "8 bars & lounges", "Multi-level Freestyle Pool", "Themed parties (Rock Show, Neon Night)", "Live DJs & music", "Sailing, windsurfing, kite surfing", "24/7 fitness center", "On-site nightclub"],
+                vibeScores: { luxury: 3, party: 5, dining: 4, activities: 4, relaxation: 2 },
+                websiteUrl: "https://www.amrcollection.com/en/resorts-hotels/breathless/dominican-republic/punta-cana-resort-spa/"
+            },
+            {
+                id: 3,
+                name: "Hotel Riu Palace Jamaica",
+                location: "Montego Bay, Jamaica",
+                price: 550,
+                vibe: "Party",
+                casino: "On-site",
+                casinoDetails: "Features a convenient on-site casino, perfect for trying your luck without leaving the resort.",
+                description: "A compelling combination of luxury and a vibrant, party-centric atmosphere. Its 24-hour all-inclusive service and access to neighboring Riu properties make it a dynamic choice.",
+                uniquePoint: "24/7 premium AI & multi-resort access for diverse entertainment & value.",
+                activities: ["On-site casino", "24-hour all-inclusive with premium drinks", "Famous 'RIU Party' events", "Access to Riu Reggae & Riu Montego Bay resorts", "Splash Water World nearby", "Windsurfing, catamaran, kayaking", "Live music & nightclub"],
+                vibeScores: { luxury: 4, party: 5, dining: 3, activities: 4, relaxation: 3 },
+                websiteUrl: "https://www.riu.com/en/hotel/jamaica/montego-bay/hotel-riu-palace-jamaica/"
+            },
+            {
+                id: 4,
+                name: "Live Aqua Beach Resort Cancun",
+                location: "Cancun, Mexico",
+                price: 484,
+                vibe: "Balanced",
+                casino: "Nearby",
+                casinoDetails: "No on-site casino, but its prime Hotel Zone location offers easy access to Royal Yak, Dubai Palace, and PlayCity casinos.",
+                description: "A distinctive blend of relaxed luxury and sophisticated indulgence. It's serene by day but transitions to a lively scene with live music and a DJ at night.",
+                uniquePoint: "Sophisticated ambiance & sensory experiences for a refined, relaxing yet lively getaway.",
+                activities: ["8 restaurants & multiple bars", "7 outdoor pools with varying temps", "Aromatherapy menu in rooms", "Feel Harmony Spa", "Live music & DJ most nights", "On-site nightclub", "Cooking classes", "Tennis courts"],
+                vibeScores: { luxury: 5, party: 3, dining: 4, activities: 3, relaxation: 5 },
+                websiteUrl: "https://www.liveaqua.com/hotels/live-aqua-beach-resort-cancun-all-inclusive"
+            },
+            {
+                id: 5,
+                name: "Hyatt Zilara Cap Cana",
+                location: "Cap Cana, DR",
+                price: 468,
+                vibe: "Balanced",
+                casino: "Nearby",
+                casinoDetails: "While not on-site, the exclusive Casino Dominic is located within the Cap Cana community, offering a premier 'night out' gaming experience.",
+                description: "A luxurious and sophisticated retreat in a private, gated community on Juanillo Beach. It's ideal for friends seeking a high-end experience combining relaxation with adventure.",
+                uniquePoint: "High-end luxury in a gated community with vast dining options and a nearby dedicated casino.",
+                activities: ["25 unique restaurants & bars", "Infinity pools with swim-up bars", "Cenote-inspired Larimar Spa", "Yoga on the beach", "Kayaking", "Nearby aerial zip-lining & golf", "Nightly live shows"],
+                vibeScores: { luxury: 5, party: 2, dining: 5, activities: 4, relaxation: 5 },
+                websiteUrl: "https://www.hyatt.com/en-US/hotel/dominican-republic/hyatt-zilara-cap-cana/pujzc"
+            },
+            {
+                id: 6,
+                name: "Hotel Riu Palace Paradise Island",
+                location: "Paradise Island, Bahamas",
+                price: 276,
+                vibe: "Balanced",
+                casino: "Nearby",
+                casinoDetails: "Located next to the massive Atlantis Casino, offering world-class gaming just steps away.",
+                description: "Adults-only, 24-hour all-inclusive with diverse dining and activities, perfect for groups seeking relaxation with easy access to vibrant casino nightlife.",
+                uniquePoint: "Proximity to Atlantis Casino for world-class gaming, combined with Riu's signature all-inclusive experience.",
+                activities: ["5 restaurants", "Multiple bars", "2 swimming pools", "Gym", "Spa", "Water sports", "Nightly entertainment", "Access to Atlantis Paradise Island (some amenities may be extra)"],
+                vibeScores: { luxury: 4, party: 4, dining: 4, activities: 4, relaxation: 3 },
+                websiteUrl: "https://www.riu.com/en/hotel/bahamas/paradise-island/hotel-riu-palace-paradise-island/"
+            },
+            {
+                id: 7,
+                name: "Breezes Resort & Spa Bahamas",
+                location: "Nassau, Bahamas",
+                price: 468,
+                vibe: "Party",
+                casino: "Nearby",
+                casinoDetails: "The lively Baha Mar Casino is just a short trip away, offering extensive gaming options.",
+                description: "A super-inclusive, lively resort on Cable Beach, popular for its vibrant atmosphere and wide range of activities. Perfect for groups seeking active fun and easy casino access.",
+                uniquePoint: "Lively, active atmosphere on Cable Beach with easy access to major casinos and local attractions.",
+                activities: ["5 restaurants", "4 bars", "3 pools", "Rock climbing wall", "Trapeze", "Water sports", "Nightly entertainment", "Disco"],
+                vibeScores: { luxury: 2, party: 5, dining: 3, activities: 5, relaxation: 3 },
+                websiteUrl: "https://www.breezes.com/resorts/breezes-resort-spa-bahamas/"
+            }
+        ];
+
+        const planningTips = [
+            { title: "Book Early!", content: "January and February are high season. Booking well in advance is crucial to get your preferred resort and better rates, especially with 'Early bird' offers." },
+            { title: "Seek Group Deals & Packages", content: "Look for 'Bundle + Save' or 'All-Inclusive hotel + flight' deals. Many resorts offer resort coupons or instant savings for group bookings, which can add significant value." },
+            { title: "Consider Room Configurations", content: "Decide how your group wants to share rooms. Many resorts offer spacious suites with two double beds, providing comfortable arrangements for friends." },
+            { title: "Pre-Plan Key Activities", content: "For popular specialty restaurants or spa treatments, it's wise to make reservations in advance to ensure you get your preferred times, especially during peak season." },
+            { title: "Clarify Inclusions", content: "While all-inclusive, some amenities like beach cabanas might be prioritized for members. Always clarify potential extra costs upfront to avoid surprises." },
+        ];
+
+        const resortsGrid = document.getElementById('resorts-grid');
+        const resultsHeading = document.getElementById('results-heading');
+        const filtersSection = document.getElementById('filters');
+        let priceChartInstance = null; // Store chart instance
+        let vibeChartInstance = null; // Store vibe chart instance
+
+        const priceBrackets = {
+            low: { min: 200, max: 490 },
+            mid: { min: 490, max: 580 },
+            high: { min: 580, max: Infinity }
+        };
+        
+        let currentFilters = {
+            vibe: 'all',
+            casino: 'all',
+            price: 'all'
+        };
+
+        const wrapLabel = (label) => {
+            if (label.length > 16) {
+                const words = label.split(' ');
+                let line = '';
+                const lines = [];
+                for (const word of words) {
+                    if ((line + word).length > 16 && line.length > 0) { // Ensure line isn't empty before pushing
+                        lines.push(line.trim());
+                        line = '';
+                    }
+                    line += word + ' ';
+                }
+                lines.push(line.trim());
+                return lines;
+            }
+            return label;
+        };
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            return Array.isArray(label) ? label.join(' ') : label;
+        };
+
+        function renderResorts(resortsToRender) {
+            resortsGrid.innerHTML = '';
+            if (resortsToRender.length === 0) {
+                resortsGrid.innerHTML = `<div class="text-center text-gray-500 col-span-full py-10">
+                    <p class="text-xl font-semibold">No resorts match your criteria!</p>
+                    <p>Try adjusting your filters.</p>
+                </div>`;
+            } else {
+                resortsToRender.forEach(resort => {
+                    const card = document.createElement('div');
+                    card.className = 'resort-card bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer flex flex-col';
+                    card.dataset.id = resort.id;
+                    card.innerHTML = `
+                        <div class="p-6 flex-grow">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-2xl font-bold text-[#007BFF]">${resort.name}</h3>
+                                <div class="text-2xl font-bold text-[#20C997]">$${resort.price}</div>
+                            </div>
+                            <p class="text-gray-500 mb-4">${resort.location}</p>
+                            <div class="flex flex-wrap gap-2 text-sm">
+                                <span class="bg-[#D8E2F2] text-[#0056B3] font-medium px-3 py-1 rounded-full">${resort.vibe} Vibe</span>
+                                <span class="bg-[#F0F4F8] text-[#333333] font-medium px-3 py-1 rounded-full">🎲 ${resort.casino}</span>
+                            </div>
+                            <p class="text-gray-600 mt-4">${resort.description.substring(0, 100)}...</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 text-center text-[#0056B3] font-semibold">
+                            Click to see details
+                        </div>
+                    `;
+                    resortsGrid.appendChild(card);
+                });
+            }
+            const count = resortsToRender.length;
+            resultsHeading.textContent = `Showing ${count} Resort${count !== 1 ? 's' : ''}`;
+        }
+        
+        function applyFilters() {
+            let filtered = [...resorts];
+
+            if (currentFilters.vibe !== 'all') {
+                filtered = filtered.filter(r => r.vibe === currentFilters.vibe);
+            }
+            if (currentFilters.casino !== 'all') {
+                filtered = filtered.filter(r => r.casino === currentFilters.casino);
+            }
+            if (currentFilters.price !== 'all') {
+                const bracket = priceBrackets[currentFilters.price];
+                filtered = filtered.filter(r => r.price >= bracket.min && r.price < bracket.max);
+            }
+            
+            renderResorts(filtered);
+            updatePriceChart(filtered); // Update chart based on filtered results
+            updateVibeChart(filtered); // Update vibe chart based on filtered results
+        }
+
+        filtersSection.addEventListener('click', (e) => {
+            if (e.target.matches('.filter-btn')) {
+                const btn = e.target;
+                const group = btn.closest('[data-filter-group]').dataset.filterGroup;
+                const value = btn.dataset.filter;
+                
+                currentFilters[group] = value;
+                
+                btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                applyFilters();
+            }
+        });
+
+        function createPriceChart(dataToChart) {
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            if (priceChartInstance) {
+                priceChartInstance.destroy();
+            }
+            priceChartInstance = new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: dataToChart.map(r => wrapLabel(r.name)),
+                    datasets: [{
+                        label: 'Avg. Nightly Price ($)',
+                        data: dataToChart.map(r => r.price),
+                        backgroundColor: '#86BBD8', /* Light Blue from Brilliant Blues */
+                        borderColor: '#007BFF', /* Primary Blue for border */
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback,
+                                label: (context) => `$${context.raw}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                           grid: { display: false },
+                           title: { display: true, text: 'Price (USD)', color: '#333333' },
+                           ticks: { color: '#333333' }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                color: '#333333',
+                                callback: function(value, index, values) {
+                                    const label = this.getLabelForValue(value);
+                                    return Array.isArray(label) ? label[0] + (label.length > 1 ? '...' : '') : label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePriceChart(filteredResorts) {
+            // Only update if the chart instance exists
+            if (priceChartInstance) {
+                priceChartInstance.data.labels = filteredResorts.map(r => wrapLabel(r.name));
+                priceChartInstance.data.datasets[0].data = filteredResorts.map(r => r.price);
+                priceChartInstance.update();
+            } else {
+                // If it doesn't exist, create it. This handles the initial load case.
+                createPriceChart(filteredResorts);
+            }
+        }
+
+        function createVibeChart(dataToChart) {
+            const vibeCtx = document.getElementById('vibeChart').getContext('2d');
+            if (vibeChartInstance) {
+                vibeChartInstance.destroy();
+            }
+            // Colors from Brilliant Blues palette: #007BFF, #0056B3, #20C997, #86BBD8 (used for radar chart lines)
+            const vibeColors = ['#007BFF', '#0056B3', '#20C997', '#86BBD8', '#4A6FA5', '#6A8EAE', '#9FB6CD']; // More shades for more datasets
+            vibeChartInstance = new Chart(vibeCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Luxury', 'Party', 'Dining', 'Activities', 'Relaxation'],
+                    datasets: dataToChart.map((r, i) => ({
+                        label: r.name,
+                        data: Object.values(r.vibeScores),
+                        fill: true,
+                        backgroundColor: `${vibeColors[i % vibeColors.length]}40`, // with 25% alpha
+                        borderColor: vibeColors[i % vibeColors.length],
+                        pointBackgroundColor: vibeColors[i % vibeColors.length],
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: vibeColors[i % vibeColors.length]
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 10 },
+                                color: '#333333'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { 
+                                font: { size: 12 },
+                                color: '#333333'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5,
+                            ticks: {
+                                display: false // Hide numerical ticks on radar chart for cleaner look
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateVibeChart(filteredResorts) {
+            if (vibeChartInstance) {
+                vibeChartInstance.data.datasets = filteredResorts.map((r, i) => ({
+                    label: r.name,
+                    data: Object.values(r.vibeScores),
+                    fill: true,
+                    backgroundColor: `${vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor}40`, // Reuse existing colors with alpha
+                    borderColor: vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor,
+                    pointBackgroundColor: vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor
+                }));
+                vibeChartInstance.update();
+            } else {
+                createVibeChart(filteredResorts);
+            }
+        }
+        
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        
+        function showModal(resort) {
+            modalContent.innerHTML = `
+                <div class="p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-[#007BFF]">${resort.name}</h2>
+                            <p class="text-lg text-gray-500">${resort.location}</p>
+                        </div>
+                        <button id="close-modal" class="modal-close-btn">&times;</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                             <h3 class="text-xl font-bold text-[#0056B3] mb-3">The Vibe</h3>
+                             <p class="text-gray-700 mb-4">${resort.description}</p>
+                             <div class="bg-blue-50 border-l-4 border-[#86BBD8] text-[#0056B3] p-4 rounded-r-lg mb-6">
+                                <p class="font-bold">Unique Selling Point:</p>
+                                <p>${resort.uniquePoint}</p>
+                             </div>
+                             
+                             <h3 class="text-xl font-bold text-[#0056B3] mb-3">Casino Situation</h3>
+                             <p class="text-gray-700 mb-4"><strong>${resort.casino}:</strong> ${resort.casinoDetails}</p>
+                        </div>
+                        <div>
+                             <h3 class="text-xl font-bold text-[#0056B3] mb-3">Key Activities & Features</h3>
+                             <ul class="space-y-2">
+                                ${resort.activities.map(act => `<li class="flex items-start"><span class="text-[#20C997] mr-2 mt-1">✓</span><span>${act}</span></li>`).join('')}
+                             </ul>
+                        </div>
+                    </div>
+                    <div class="mt-8 text-center">
+                        <a href="${resort.websiteUrl}" target="_blank" class="inline-block bg-[#007BFF] hover:bg-[#0056B3] text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-200">Visit Resort Website</a>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-95');
+        }
+
+        function hideModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.add('scale-95');
+        }
+        
+        resortsGrid.addEventListener('click', e => {
+            const card = e.target.closest('.resort-card');
+            if (card) {
+                const resortId = parseInt(card.dataset.id, 10);
+                const resort = resorts.find(r => r.id === resortId);
+                showModal(resort);
+            }
+        });
+        
+        modal.addEventListener('click', e => {
+            if (e.target.id === 'modal' || e.target.id === 'close-modal') {
+                hideModal();
+            }
+        });
+
+        function renderTips() {
+            const accordionContainer = document.getElementById('tips-accordion');
+            planningTips.forEach((tip) => {
+                const tipDiv = document.createElement('div');
+                tipDiv.className = 'border border-gray-200 rounded-lg';
+                tipDiv.innerHTML = `
+                    <button class="w-full text-left p-4 flex justify-between items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] rounded-lg">
+                        <span class="font-semibold text-lg text-[#0056B3]">${tip.title}</span>
+                        <span class="transform transition-transform duration-300 text-[#007BFF] text-2xl">+</span>
+                    </button>
+                    <div class="tip-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                        <p class="p-4 pt-0 text-gray-600">${tip.content}</p>
+                    </div>
+                `;
+                accordionContainer.appendChild(tipDiv);
+            });
+
+            accordionContainer.addEventListener('click', e => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('span:last-child');
+                
+                if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                    content.style.maxHeight = '0px';
+                    icon.classList.remove('rotate-45');
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.classList.add('rotate-45');
+                }
+            });
+        }
+        
+        // Initial setup calls
+        applyFilters(); // This will now call updatePriceChart, which will create the chart if it doesn't exist.
+        renderTips();
+    });
+    </script>
+</body>
+</html>
