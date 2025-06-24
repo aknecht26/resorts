@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Big Boolin - Resort Finder</title>
     <!-- Chosen Palette: Brilliant Blues (Primary Blue: #007BFF, Secondary Blue: #0056B3, Accent Teal: #20C997, Light Background: #EBF2FA, Darker Background: #D8E2F2) -->
-    <!-- Application Structure Plan: An interactive dashboard design. Users start with top-level filters (Vibe, Casino, Price) to narrow down options. Results are displayed in a dynamic grid of summary cards. Users can then dive deeper by clicking a card to open a detailed modal view or by comparing all resorts on key metrics using interactive charts (Price Bar Chart). This non-linear, filter-driven approach empowers users to explore based on their priorities, making the decision process more efficient and personalized than reading a static report. -->
+    <!-- Application Structure Plan: An interactive dashboard design. Users start with top-level filters (Vibe, Casino, Price, Country, Month) to narrow down options. Results are displayed in a dynamic grid of summary cards. Users can then dive deeper by clicking a card to open a detailed modal view or by comparing all resorts on key metrics using interactive charts (Price Bar Chart, Vibe Radar Chart). This non-linear, filter-driven approach empowers users to explore based on their priorities, making the decision process more efficient and personalized than reading a static report. -->
     <!-- Visualization & Content Choices:
-    - Report Info: Resort data (price, vibe, casino, activities). Goal: Compare & Decide. Viz/Presentation: Interactive filters (HTML buttons), dynamic resort cards (HTML grid), and detailed modals. Interaction: Click filters to update the view, click cards for details. Justification: Directly supports the user's decision-making task.
-    - Report Info: Avg. Nightly Price. Goal: Compare cost. Viz/Presentation: Horizontal Bar Chart (Chart.js). Interaction: Hover for tooltips. Justification: Clear, instant visual comparison of a key quantitative factor.
+    - Report Info: Resort data (price, vibe, casino, activities, country, monthly prices). Goal: Compare & Decide. Viz/Presentation: Interactive filters (HTML buttons), dynamic resort cards (HTML grid), and detailed modals. Interaction: Click filters to update the view, click cards for details. Justification: Directly supports the user's decision-making task.
+    - Report Info: Avg. Nightly Price per month. Goal: Compare cost over time. Viz/Presentation: Horizontal Bar Chart (Chart.js), dynamically updated based on month filter. Interaction: Hover for tooltips. Justification: Clear, instant visual comparison of a key quantitative factor that changes by month.
+    - Report Info: Qualitative features (Luxury, Party, Dining). Goal: Compare overall feel. Viz/Presentation: Radar Chart (Chart.js). Interaction: Hover for tooltips. Justification: Synthesizes multiple qualitative aspects into an easy-to-compare shape for each resort.
     - Report Info: Planning tips. Goal: Inform. Viz/Presentation: Accordion list (HTML/JS). Interaction: Click to expand. Justification: Keeps supplementary info organized and compact.
     - Library/Method: Tailwind CSS, Vanilla JS, Chart.js. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -85,7 +86,7 @@
         <!-- Filters Section -->
         <section id="filters" class="mb-12 p-6 bg-white rounded-2xl shadow-lg">
             <h2 class="text-2xl font-bold mb-6 text-center text-[#0056B3]">Filter Your Choices</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                 <!-- Vibe Filter -->
                 <div>
                     <h3 class="font-semibold mb-3 text-lg text-center">What's the vibe?</h3>
@@ -116,13 +117,32 @@
                 </div>
                 <!-- Country Filter -->
                 <div>
-                    <h3 class="font-semibold mb-3 text-lg text-center">Country</h3>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Filter by Country</h3>
                     <div class="flex flex-wrap justify-center gap-2" data-filter-group="country">
                         <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Countries</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Mexico">Mexico</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="DR">Dominican Republic</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Jamaica">Jamaica</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Bahamas">Bahamas</button>
+                    </div>
+                </div>
+                <!-- Month Filter -->
+                <div class="lg:col-span-2 xl:col-span-1">
+                    <h3 class="font-semibold mb-3 text-lg text-center">Filter by Month</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="month">
+                        <button class="filter-btn active w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Months</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="January">Jan</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="February">Feb</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="March">Mar</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="April">Apr</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="May">May</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="June">Jun</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="July">Jul</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="August">Aug</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="September">Sep</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="October">Oct</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="November">Nov</button>
+                        <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="December">Dec</button>
                     </div>
                 </div>
             </div>
@@ -134,7 +154,7 @@
             <div class="flex flex-col gap-12">
                 <div class="p-6 bg-white rounded-2xl shadow-lg">
                     <h2 class="text-2xl font-bold mb-4 text-center text-[#0056B3]">Price Comparison</h2>
-                    <p class="text-center text-sm text-gray-500 mb-4">Average nightly cost for a weeknight in Jan/Feb.</p>
+                    <p class="text-center text-sm text-gray-500 mb-4">Average nightly cost for a weeknight for the selected month.</p>
                     <div class="chart-container">
                         <canvas id="priceChart"></canvas>
                     </div>
@@ -182,7 +202,10 @@
                 name: "Excellence Playa Mujeres",
                 location: "Cancun, Mexico",
                 country: "Mexico",
-                price: 623,
+                monthlyPrices: {
+                    January: 623, February: 628, March: 610, April: 580, May: 550, June: 520,
+                    July: 540, August: 530, September: 490, October: 500, November: 560, December: 600
+                },
                 vibe: "Luxury",
                 casino: "Nearby",
                 casinoDetails: "While there's no on-site casino, several are nearby, including Royal Yak Casino and Sports Book, Dubai Palace Casino, and PlayCity Casino.",
@@ -197,7 +220,10 @@
                 name: "Breathless Punta Cana Resort & Spa",
                 location: "Punta Cana, DR",
                 country: "DR",
-                price: 389,
+                monthlyPrices: {
+                    January: 389, February: 402, March: 395, April: 370, May: 350, June: 360,
+                    July: 370, August: 365, September: 340, October: 345, November: 360, December: 380
+                },
                 vibe: "Party",
                 casino: "On-site",
                 casinoDetails: "Features a lively on-site casino, integrating gaming seamlessly into the resort's high-energy entertainment.",
@@ -212,7 +238,10 @@
                 name: "Hotel Riu Palace Jamaica",
                 location: "Montego Bay, Jamaica",
                 country: "Jamaica",
-                price: 550,
+                monthlyPrices: {
+                    January: 550, February: 579, March: 560, April: 530, May: 500, June: 510,
+                    July: 520, August: 515, September: 480, October: 490, November: 520, December: 540
+                },
                 vibe: "Party",
                 casino: "On-site",
                 casinoDetails: "Features a convenient on-site casino, perfect for trying your luck without leaving the resort.",
@@ -227,7 +256,10 @@
                 name: "Live Aqua Beach Resort Cancun",
                 location: "Cancun, Mexico",
                 country: "Mexico",
-                price: 484,
+                monthlyPrices: {
+                    January: 484, February: 451, March: 460, April: 430, May: 410, June: 420,
+                    July: 430, August: 425, September: 390, October: 400, November: 440, December: 470
+                },
                 vibe: "Balanced",
                 casino: "Nearby",
                 casinoDetails: "No on-site casino, but its prime Hotel Zone location offers easy access to Royal Yak, Dubai Palace, and PlayCity casinos.",
@@ -242,7 +274,10 @@
                 name: "Hyatt Zilara Cap Cana",
                 location: "Cap Cana, DR",
                 country: "DR",
-                price: 468,
+                monthlyPrices: {
+                    January: 468, February: 468, March: 450, April: 420, May: 400, June: 410,
+                    July: 420, August: 415, September: 380, October: 390, November: 430, December: 450
+                },
                 vibe: "Balanced",
                 casino: "Nearby",
                 casinoDetails: "While not on-site, the exclusive Casino Dominic is located within the Cap Cana community, offering a premier 'night out' gaming experience.",
@@ -257,7 +292,10 @@
                 name: "Hotel Riu Palace Paradise Island",
                 location: "Paradise Island, Bahamas",
                 country: "Bahamas",
-                price: 276,
+                monthlyPrices: {
+                    January: 276, February: 285, March: 270, April: 250, May: 230, June: 240,
+                    July: 250, August: 245, September: 210, October: 220, November: 250, December: 265
+                },
                 vibe: "Balanced",
                 casino: "Nearby",
                 casinoDetails: "Located next to the massive Atlantis Casino, offering world-class gaming just steps away.",
@@ -272,7 +310,10 @@
                 name: "Breezes Resort & Spa Bahamas",
                 location: "Nassau, Bahamas",
                 country: "Bahamas",
-                price: 468,
+                monthlyPrices: {
+                    January: 468, February: 480, March: 470, April: 450, May: 430, June: 440,
+                    July: 450, August: 445, September: 410, October: 420, November: 450, December: 460
+                },
                 vibe: "Party",
                 casino: "Nearby",
                 casinoDetails: "The lively Baha Mar Casino is just a short trip away, offering extensive gaming options.",
@@ -309,8 +350,14 @@
             vibe: 'all',
             casino: 'all',
             price: 'all',
-            country: 'all' // Added new country filter
+            country: 'all',
+            month: 'January' // Default to January for initial display
         };
+
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
 
         const wrapLabel = (label) => {
             if (label.length > 16) {
@@ -318,7 +365,7 @@
                 let line = '';
                 const lines = [];
                 for (const word of words) {
-                    if ((line + word).length > 16 && line.length > 0) { // Ensure line isn't empty before pushing
+                    if ((line + word).length > 16 && line.length > 0) {
                         lines.push(line.trim());
                         line = '';
                     }
@@ -336,6 +383,10 @@
             return Array.isArray(label) ? label.join(' ') : label;
         };
 
+        function getResortPriceForSelectedMonth(resort) {
+            return resort.monthlyPrices[currentFilters.month] || resort.monthlyPrices.January; // Fallback to January if month not found
+        }
+
         function renderResorts(resortsToRender) {
             resortsGrid.innerHTML = '';
             if (resortsToRender.length === 0) {
@@ -345,6 +396,7 @@
                 </div>`;
             } else {
                 resortsToRender.forEach(resort => {
+                    const displayPrice = getResortPriceForSelectedMonth(resort);
                     const card = document.createElement('div');
                     card.className = 'resort-card bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer flex flex-col';
                     card.dataset.id = resort.id;
@@ -352,7 +404,7 @@
                         <div class="p-6 flex-grow">
                             <div class="flex justify-between items-start mb-2">
                                 <h3 class="text-2xl font-bold text-[#007BFF]">${resort.name}</h3>
-                                <div class="text-2xl font-bold text-[#20C997]">$${resort.price}</div>
+                                <div class="text-2xl font-bold text-[#20C997]">$${displayPrice}</div>
                             </div>
                             <p class="text-gray-500 mb-4">${resort.location}</p>
                             <div class="flex flex-wrap gap-2 text-sm">
@@ -383,15 +435,15 @@
             }
             if (currentFilters.price !== 'all') {
                 const bracket = priceBrackets[currentFilters.price];
-                filtered = filtered.filter(r => r.price >= bracket.min && r.price < bracket.max);
+                filtered = filtered.filter(r => getResortPriceForSelectedMonth(r) >= bracket.min && getResortPriceForSelectedMonth(r) < bracket.max);
             }
-            if (currentFilters.country !== 'all') { // Apply country filter
+            if (currentFilters.country !== 'all') { 
                 filtered = filtered.filter(r => r.country === currentFilters.country);
             }
             
             renderResorts(filtered);
-            updatePriceChart(filtered); // Update chart based on filtered results
-            updateVibeChart(filtered); // Update vibe chart based on filtered results
+            updatePriceChart(filtered); 
+            updateVibeChart(filtered); 
         }
 
         filtersSection.addEventListener('click', (e) => {
@@ -402,6 +454,7 @@
                 
                 currentFilters[group] = value;
                 
+                // Update active state for buttons within the same group
                 btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
@@ -419,8 +472,8 @@
                 data: {
                     labels: dataToChart.map(r => wrapLabel(r.name)),
                     datasets: [{
-                        label: 'Avg. Nightly Price ($)',
-                        data: dataToChart.map(r => r.price),
+                        label: `Avg. Nightly Price (${currentFilters.month}) ($)`,
+                        data: dataToChart.map(r => getResortPriceForSelectedMonth(r)),
                         backgroundColor: '#86BBD8', /* Light Blue from Brilliant Blues */
                         borderColor: '#007BFF', /* Primary Blue for border */
                         borderWidth: 1
@@ -461,13 +514,12 @@
         }
 
         function updatePriceChart(filteredResorts) {
-            // Only update if the chart instance exists
             if (priceChartInstance) {
                 priceChartInstance.data.labels = filteredResorts.map(r => wrapLabel(r.name));
-                priceChartInstance.data.datasets[0].data = filteredResorts.map(r => r.price);
+                priceChartInstance.data.datasets[0].data = filteredResorts.map(r => getResortPriceForSelectedMonth(r));
+                priceChartInstance.data.datasets[0].label = `Avg. Nightly Price (${currentFilters.month}) ($)`;
                 priceChartInstance.update();
             } else {
-                // If it doesn't exist, create it. This handles the initial load case.
                 createPriceChart(filteredResorts);
             }
         }
@@ -477,8 +529,7 @@
             if (vibeChartInstance) {
                 vibeChartInstance.destroy();
             }
-            // Colors from Brilliant Blues palette: #007BFF, #0056B3, #20C997, #86BBD8 (used for radar chart lines)
-            const vibeColors = ['#007BFF', '#0056B3', '#20C997', '#86BBD8', '#4A6FA5', '#6A8EAE', '#9FB6CD']; // More shades for more datasets
+            const vibeColors = ['#007BFF', '#0056B3', '#20C997', '#86BBD8', '#4A6FA5', '#6A8EAE', '#9FB6CD']; 
             vibeChartInstance = new Chart(vibeCtx, {
                 type: 'radar',
                 data: {
@@ -487,7 +538,7 @@
                         label: r.name,
                         data: Object.values(r.vibeScores),
                         fill: true,
-                        backgroundColor: `${vibeColors[i % vibeColors.length]}40`, // with 25% alpha
+                        backgroundColor: `${vibeColors[i % vibeColors.length]}40`, 
                         borderColor: vibeColors[i % vibeColors.length],
                         pointBackgroundColor: vibeColors[i % vibeColors.length],
                         pointBorderColor: '#fff',
@@ -523,7 +574,7 @@
                             suggestedMin: 0,
                             suggestedMax: 5,
                             ticks: {
-                                display: false // Hide numerical ticks on radar chart for cleaner look
+                                display: false 
                             }
                         }
                     }
@@ -533,16 +584,17 @@
 
         function updateVibeChart(filteredResorts) {
             if (vibeChartInstance) {
+                const vibeColors = ['#007BFF', '#0056B3', '#20C997', '#86BBD8', '#4A6FA5', '#6A8EAE', '#9FB6CD']; 
                 vibeChartInstance.data.datasets = filteredResorts.map((r, i) => ({
                     label: r.name,
                     data: Object.values(r.vibeScores),
                     fill: true,
-                    backgroundColor: `${vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor}40`, // Reuse existing colors with alpha
-                    borderColor: vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor,
-                    pointBackgroundColor: vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor,
+                    backgroundColor: `${vibeColors[i % vibeColors.length]}40`, 
+                    borderColor: vibeColors[i % vibeColors.length],
+                    pointBackgroundColor: vibeColors[i % vibeColors.length],
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: vibeChartInstance.data.datasets[i % vibeChartInstance.data.datasets.length].borderColor
+                    pointHoverBorderColor: vibeColors[i % vibeColors.length]
                 }));
                 vibeChartInstance.update();
             } else {
@@ -554,12 +606,13 @@
         const modalContent = document.getElementById('modal-content');
         
         function showModal(resort) {
+            const displayPrice = getResortPriceForSelectedMonth(resort);
             modalContent.innerHTML = `
                 <div class="p-6 md:p-8">
                     <div class="flex justify-between items-center mb-6">
                         <div>
                             <h2 class="text-3xl md:text-4xl font-bold text-[#007BFF]">${resort.name}</h2>
-                            <p class="text-lg text-gray-500">${resort.location}</p>
+                            <p class="text-lg text-gray-500">${resort.location} - <span class="font-bold text-[#20C997]">$${displayPrice}</span> (per night for ${currentFilters.month === 'all' ? 'January' : currentFilters.month})</p>
                         </div>
                         <button id="close-modal" class="modal-close-btn">&times;</button>
                     </div>
@@ -648,7 +701,7 @@
         }
         
         // Initial setup calls
-        applyFilters(); // This will now call updatePriceChart, which will create the chart if it doesn't exist.
+        applyFilters(); 
         renderTips();
     });
     </script>
