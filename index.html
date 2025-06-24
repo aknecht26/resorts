@@ -272,6 +272,7 @@
             { title: "Consider Room Configurations", content: "Decide how your group wants to share rooms. Many resorts offer spacious suites with two double beds, providing comfortable arrangements for friends." },
             { title: "Pre-Plan Key Activities", content: "For popular specialty restaurants or spa treatments, it's wise to make reservations in advance to ensure you get your preferred times, especially during peak season." },
             { title: "Clarify Inclusions", content: "While all-inclusive, some amenities like beach cabanas might be prioritized for members. Always clarify potential extra costs upfront to avoid surprises." },
+            { title: "Be Sure to Bool", content: "Eat, drink, bool" }
         ];
 
         const resortsGrid = document.getElementById('resorts-grid');
@@ -591,6 +592,7 @@
 
         function renderTips() {
             const accordionContainer = document.getElementById('tips-accordion');
+            accordionContainer.innerHTML = ''; // Clear existing tips before re-rendering
             planningTips.forEach((tip) => {
                 const tipDiv = document.createElement('div');
                 tipDiv.className = 'border border-gray-200 rounded-lg';
