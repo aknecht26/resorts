@@ -529,7 +529,16 @@
             if (vibeChartInstance) {
                 vibeChartInstance.destroy();
             }
-            const vibeColors = ['#007BFF', '#0056B3', '#20C997', '#86BBD8', '#4A6FA5', '#6A8EAE', '#9FB6CD']; 
+            // Distinct and vibrant colors for radar chart lines
+            const vibeColors = [
+                '#E63946', // Red
+                '#FFBA08', // Yellow
+                '#1A759F', // Dark Blue
+                '#2DCC70', // Green
+                '#A53860', // Plum
+                '#3D3B8E', // Deep Purple
+                '#7A04A3'  // Bright Purple
+            ]; 
             vibeChartInstance = new Chart(vibeCtx, {
                 type: 'radar',
                 data: {
@@ -538,7 +547,7 @@
                         label: r.name,
                         data: Object.values(r.vibeScores),
                         fill: true,
-                        backgroundColor: `${vibeColors[i % vibeColors.length]}40`, 
+                        backgroundColor: `${vibeColors[i % vibeColors.length]}40`, // with 25% alpha
                         borderColor: vibeColors[i % vibeColors.length],
                         pointBackgroundColor: vibeColors[i % vibeColors.length],
                         pointBorderColor: '#fff',
@@ -584,7 +593,15 @@
 
         function updateVibeChart(filteredResorts) {
             if (vibeChartInstance) {
-                const vibeColors = ['#007BFF', '#0056B3', '#20C997', '#86BBD8', '#4A6FA5', '#6A8EAE', '#9FB6CD']; 
+                const vibeColors = [
+                    '#E63946', // Red
+                    '#FFBA08', // Yellow
+                    '#1A759F', // Dark Blue
+                    '#2DCC70', // Green
+                    '#A53860', // Plum
+                    '#3D3B8E', // Deep Purple
+                    '#7A04A3'  // Bright Purple
+                ]; 
                 vibeChartInstance.data.datasets = filteredResorts.map((r, i) => ({
                     label: r.name,
                     data: Object.values(r.vibeScores),
