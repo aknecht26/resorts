@@ -117,7 +117,140 @@
                 </div>
                 <!-- Country Filter -->
                 <div>
-                    <h3 class="font-semibold mb-3 text-lg text-center">Filter by Country</h3>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Country</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="country">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Countries</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Mexico">Mexico</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="DR">Dominican Republic</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Jamaica">Jamaica</鑒thought
+The user wants to see the code for the updated filter headings. I need to provide the complete HTML code for the resort finder with the latest changes.
+
+Specifically, I need to ensure these changes are applied to the `<h3>` tags within the `filters` section:
+- "Casino access?" -> "Casino access"
+- "Price range (per night)?" -> "Price range (per night)"
+- "Filter by Country?" -> "Country"
+- "Filter by Month?" -> "Month"
+- "What's your group's vibe?" -> "What's the vibe?" (This one was already handled in the previous turn, but I'll double-check it's still correct).```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Boolin - Resort Finder</title>
+    <!-- Chosen Palette: Brilliant Blues (Primary Blue: #007BFF, Secondary Blue: #0056B3, Accent Teal: #20C997, Light Background: #EBF2FA, Darker Background: #D8E2F2) -->
+    <!-- Application Structure Plan: An interactive dashboard design. Users start with top-level filters (Vibe, Casino, Price, Country, Month) to narrow down options. Results are displayed in a dynamic grid of summary cards. Users can then dive deeper by clicking a card to open a detailed modal view or by comparing all resorts on key metrics using interactive charts (Price Bar Chart, Vibe Radar Chart). This non-linear, filter-driven approach empowers users to explore based on their priorities, making the decision process more efficient and personalized than reading a static report. -->
+    <!-- Visualization & Content Choices:
+    - Report Info: Resort data (price, vibe, casino, activities, country, monthly prices). Goal: Compare & Decide. Viz/Presentation: Interactive filters (HTML buttons), dynamic resort cards (HTML grid), and detailed modals. Interaction: Click filters to update the view, click cards for details. Justification: Directly supports the user's decision-making task.
+    - Report Info: Avg. Nightly Price per month. Goal: Compare cost over time. Viz/Presentation: Horizontal Bar Chart (Chart.js), dynamically updated based on month filter. Interaction: Hover for tooltips. Justification: Clear, instant visual comparison of a key quantitative factor that changes by month.
+    - Report Info: Qualitative features (Luxury, Party, Dining). Goal: Compare overall feel. Viz/Presentation: Radar Chart (Chart.js). Interaction: Hover for tooltips. Justification: Synthesizes multiple qualitative aspects into an easy-to-compare shape for each resort.
+    - Report Info: Planning tips. Goal: Inform. Viz/Presentation: Accordion list (HTML/JS). Interaction: Click to expand. Justification: Keeps supplementary info organized and compact.
+    - Library/Method: Tailwind CSS, Vanilla JS, Chart.js. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
+    <style>
+        @import url('[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap)');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EBF2FA; /* Light background from Brilliant Blues palette */
+        }
+        .filter-btn.active {
+            background-color: #007BFF; /* Primary Blue accent */
+            color: white;
+            border-color: #007BFF;
+        }
+        .filter-btn {
+            transition: all 0.2s ease-in-out;
+            border-color: #C2D4E8; /* Lighter blue for inactive borders */
+            color: #333333; /* Dark gray for text */
+            background-color: white;
+        }
+        .resort-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: white;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Subtle shadow */
+        }
+        .resort-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* More pronounced shadow on hover */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        #modal {
+            transition: opacity 0.3s ease;
+        }
+        #modal-content {
+            background-color: white;
+            border-radius: 1.5rem; /* More rounded corners */
+        }
+        .modal-close-btn {
+            font-size: 2.5rem;
+            line-height: 1;
+            color: #94A3B8; /* Muted blue-gray */
+        }
+        .modal-close-btn:hover {
+            color: #EF4444; /* Red for close hover */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Main Container -->
+    <div class="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#007BFF] mb-2">Big Boolin</h1>
+        </header>
+
+        <!-- Filters Section -->
+        <section id="filters" class="mb-12 p-6 bg-white rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 text-center text-[#0056B3]">Filter Your Choices</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                <!-- Vibe Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">What's the vibe?</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="vibe">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Vibes</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Luxury">Luxury & Gourmet</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Party">High-Energy & Party</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Balanced">Balanced Fun</button>
+                    </div>
+                </div>
+                <!-- Casino Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Casino access</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="casino">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">Any</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="On-site">On-site</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Nearby">Nearby</button>
+                    </div>
+                </div>
+                <!-- Price Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Price range (per night)</h3>
+                    <div class="flex flex-wrap justify-center gap-2" data-filter-group="price">
+                        <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="low">$200 - $490</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="mid">$490 - $580</button>
+                        <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="high">$580+</button>
+                    </div>
+                </div>
+                <!-- Country Filter -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Country</h3>
                     <div class="flex flex-wrap justify-center gap-2" data-filter-group="country">
                         <button class="filter-btn active w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Countries</button>
                         <button class="filter-btn w-full sm:w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="Mexico">Mexico</button>
@@ -128,7 +261,7 @@
                 </div>
                 <!-- Month Filter -->
                 <div class="lg:col-span-2 xl:col-span-1">
-                    <h3 class="font-semibold mb-3 text-lg text-center">Filter by Month</h3>
+                    <h3 class="font-semibold mb-3 text-lg text-center">Month</h3>
                     <div class="flex flex-wrap justify-center gap-2" data-filter-group="month">
                         <button class="filter-btn active w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="all">All Months</button>
                         <button class="filter-btn w-auto text-sm font-medium py-2 px-4 border rounded-full" data-filter="January">Jan</button>
@@ -213,7 +346,7 @@
                 uniquePoint: "Gourmet dining variety & extensive activities for a luxurious, active trip.",
                 activities: ["12 international restaurants", "11 bars/lounges", "7 swimming pools", "Miilé Spa", "Kayaking, sailing, snorkeling", "Tennis, pickleball, archery", "Cooking & dance classes", "Nightly live shows & nightclub"],
                 vibeScores: { luxury: 5, party: 3, dining: 5, activities: 5, relaxation: 4 },
-                websiteUrl: "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/"
+                websiteUrl: "[https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/](https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/)"
             },
             {
                 id: 2,
@@ -231,7 +364,7 @@
                 uniquePoint: "Non-stop themed parties & on-site casino for a high-energy, integrated experience.",
                 activities: ["On-site casino", "8 bars & lounges", "Multi-level Freestyle Pool", "Themed parties (Rock Show, Neon Night)", "Live DJs & music", "Sailing, windsurfing, kite surfing", "24/7 fitness center", "On-site nightclub"],
                 vibeScores: { luxury: 3, party: 5, dining: 4, activities: 4, relaxation: 2 },
-                websiteUrl: "https://www.amrcollection.com/en/resorts-hotels/breathless/dominican-republic/punta-cana-resort-spa/"
+                websiteUrl: "[https://www.amrcollection.com/en/resorts-hotels/breathless/dominican-republic/punta-cana-resort-spa/](https://www.amrcollection.com/en/resorts-hotels/breathless/dominican-republic/punta-cana-resort-spa/)"
             },
             {
                 id: 3,
@@ -249,7 +382,7 @@
                 uniquePoint: "24/7 premium AI & multi-resort access for diverse entertainment & value.",
                 activities: ["On-site casino", "24-hour all-inclusive with premium drinks", "Famous 'RIU Party' events", "Access to Riu Reggae & Riu Montego Bay resorts", "Splash Water World nearby", "Windsurfing, catamaran, kayaking", "Live music & nightclub"],
                 vibeScores: { luxury: 4, party: 5, dining: 3, activities: 4, relaxation: 3 },
-                websiteUrl: "https://www.riu.com/en/hotel/jamaica/montego-bay/hotel-riu-palace-jamaica/"
+                websiteUrl: "[https://www.riu.com/en/hotel/jamaica/montego-bay/hotel-riu-palace-jamaica/](https://www.riu.com/en/hotel/jamaica/montego-bay/hotel-riu-palace-jamaica/)"
             },
             {
                 id: 4,
@@ -267,7 +400,7 @@
                 uniquePoint: "Sophisticated ambiance & sensory experiences for a refined, relaxing yet lively getaway.",
                 activities: ["8 restaurants & multiple bars", "7 outdoor pools with varying temps", "Aromatherapy menu in rooms", "Feel Harmony Spa", "Live music & DJ most nights", "On-site nightclub", "Cooking classes", "Tennis courts"],
                 vibeScores: { luxury: 5, party: 3, dining: 4, activities: 3, relaxation: 5 },
-                websiteUrl: "https://www.liveaqua.com/hotels/live-aqua-beach-resort-cancun-all-inclusive"
+                websiteUrl: "[https://www.liveaqua.com/hotels/live-aqua-beach-resort-cancun-all-inclusive](https://www.liveaqua.com/hotels/live-aqua-beach-resort-cancun-all-inclusive)"
             },
             {
                 id: 5,
@@ -285,7 +418,7 @@
                 uniquePoint: "High-end luxury in a gated community with vast dining options and a nearby dedicated casino.",
                 activities: ["25 unique restaurants & bars", "Infinity pools with swim-up bars", "Cenote-inspired Larimar Spa", "Yoga on the beach", "Kayaking", "Nearby aerial zip-lining & golf", "Nightly live shows"],
                 vibeScores: { luxury: 5, party: 2, dining: 5, activities: 4, relaxation: 5 },
-                websiteUrl: "https://www.hyatt.com/en-US/hotel/dominican-republic/hyatt-zilara-cap-cana/pujzc"
+                websiteUrl: "[https://www.hyatt.com/en-US/hotel/dominican-republic/hyatt-zilara-cap-cana/pujzc](https://www.hyatt.com/en-US/hotel/dominican-republic/hyatt-zilara-cap-cana/pujzc)"
             },
             {
                 id: 6,
@@ -303,7 +436,7 @@
                 uniquePoint: "Proximity to Atlantis Casino for world-class gaming, combined with Riu's signature all-inclusive experience.",
                 activities: ["5 restaurants", "Multiple bars", "2 swimming pools", "Gym", "Spa", "Water sports", "Nightly entertainment", "Access to Atlantis Paradise Island (some amenities may be extra)"],
                 vibeScores: { luxury: 4, party: 4, dining: 4, activities: 4, relaxation: 3 },
-                websiteUrl: "https://www.riu.com/en/hotel/bahamas/paradise-island/hotel-riu-palace-paradise-island/"
+                websiteUrl: "[https://www.riu.com/en/hotel/bahamas/paradise-island/hotel-riu-palace-paradise-island/](https://www.riu.com/en/hotel/bahamas/paradise-island/hotel-riu-palace-paradise-island/)"
             },
             {
                 id: 7,
@@ -321,7 +454,7 @@
                 uniquePoint: "Lively, active atmosphere on Cable Beach with easy access to major casinos and local attractions.",
                 activities: ["5 restaurants", "4 bars", "3 pools", "Rock climbing wall", "Trapeze", "Water sports", "Nightly entertainment", "Disco"],
                 vibeScores: { luxury: 2, party: 5, dining: 3, activities: 5, relaxation: 3 },
-                websiteUrl: "https://www.breezes.com/resorts/breezes-resort-spa-bahamas/"
+                websiteUrl: "[https://www.breezes.com/resorts/breezes-resort-spa-bahamas/](https://www.breezes.com/resorts/breezes-resort-spa-bahamas/)"
             }
         ];
 
